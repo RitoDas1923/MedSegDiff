@@ -37,10 +37,10 @@ class BRATSDataset(torch.utils.data.Dataset):
                 datapoint = dict()
                 # extract all files as channels
                 for f in files:
+                    if len(f.split('_'))<4 or len(f.split('_')[3].split('.'))<1 : continue
                     seqtype = f.split('_')[3]
                     datapoint[seqtype] = os.path.join(root, f)
-                assert set(datapoint.keys()) == self.seqtypes_set, \
-                    f'datapoint is incomplete, keys are {datapoint.keys()}'
+                if set(datapoint.keys()) != self.seqtypes_set : continue
                 self.database.append(datapoint)
 
     def __getitem__(self, x):
@@ -104,6 +104,7 @@ class BRATSDataset3D(torch.utils.data.Dataset):
                 datapoint = dict()
                 # extract all files as channels
                 for f in files:
+                    if len(f.split('_'))<4 or len(f.split('_')[3].split('.'))<1 : continue
                     seqtype = f.split('_')[3].split('.')[0]
                     datapoint[seqtype] = os.path.join(root, f)
                 if set(datapoint.keys()) != self.seqtypes_set : continue
