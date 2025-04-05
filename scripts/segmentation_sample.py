@@ -40,6 +40,7 @@ def visualize(img):
     _max = img.max()
     normalized_img = (img - _min)/ (_max - _min)
     return normalized_img
+                    c
 
 
 def main():
@@ -134,7 +135,7 @@ def main():
             co = th.tensor(cal_out)
             if args.version == 'new':
                 # enslist.append(sample[:,-1,:,:])
-                enslist.append(cal)
+                enslist.append(co)
             else:
                 enslist.append(co)
 
@@ -166,8 +167,10 @@ def main():
                     o3 = th.tensor(org)[:,2,:,:].unsqueeze(1)
                     o4 = th.tensor(org)[:,3,:,:].unsqueeze(1)
                     c = th.tensor(cal)
-
-                    tup = (o1/o1.max(),o2/o2.max(),o3/o3.max(),o4/o4.max(),m,s,c/c.max(),co)
+                    c_bin = (c > 0.5).float()
+                    c_vis = visualize(c)
+                    tup = (o1/o1.max(),o2/o2.max(),o3/o3.max(),o4/o4.max(),m,s,c,c_bin,c_vis,co)   
+                    
 
                 compose = th.cat(tup,0)
                 vutils.save_image(compose, fp = os.path.join(args.out_dir, str(slice_ID)+'_output'+str(i)+".jpg"), nrow = 1, padding = 10)
