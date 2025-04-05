@@ -40,7 +40,6 @@ def visualize(img):
     _max = img.max()
     normalized_img = (img - _min)/ (_max - _min)
     return normalized_img
-                    c
 
 
 def main():
