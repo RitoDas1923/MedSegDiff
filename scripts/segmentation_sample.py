@@ -34,7 +34,8 @@ th.manual_seed(seed)
 th.cuda.manual_seed_all(seed)
 np.random.seed(seed)
 random.seed(seed)
-
+dice_loss = CrossEntropyLoss()# DiceLoss(1) #
+val_losses = []
 def visualize(img):
     _min = img.min()
     _max = img.max()
@@ -138,6 +139,17 @@ def main():
             else:
                 enslist.append(co)
 
+            print("sample",sample.shape)
+            print("org",th.tensor(org)[:,:-1,:,:].shape)
+            #val_loss =dice_loss (sample, th.tensor(org)[:,:-1,:,:], softmax=True)
+            sample2=th.tensor(sample)[:,-1,:,:].unsqueeze(1)
+            print("sample2",sample2.shape)
+            
+            target = m.cpu()#th.tensor(org)[:,:-1,:,:]# torch.argmax(th.tensor(org)[:,:-1,:,:], dim=1)#th.tensor(org)[:,:-1,:,:]# torch.argmax(th.tensor(org)[:,:-1,:,:], dim=1)
+            print("target",target.shape)
+            val_loss = dice_loss(sample2.cpu(),target[:])#        .long() )#  softmax=True)      #
+            val_losses.append(val_loss.item())
+
             if args.debug:
                 # print('sample size is',sample.size())
                 # print('org size is',org.size())
@@ -166,15 +178,13 @@ def main():
                     o3 = th.tensor(org)[:,2,:,:].unsqueeze(1)
                     o4 = th.tensor(org)[:,3,:,:].unsqueeze(1)
                     c = th.tensor(cal)
-                    c_bin = (c > 0.5).float()
-                    c_vis = visualize(c)
-                    tup = (o1/o1.max(),o2/o2.max(),o3/o3.max(),o4/o4.max(),m,s,c,c_bin,c_vis,co)   
-                    
-
-                compose = th.cat(tup,0)
-                vutils.save_image(compose, fp = os.path.join(args.out_dir, str(slice_ID)+'_output'+str(i)+".jpg"), nrow = 1, padding = 10)
+                    tup = (o1/o1.max(),o2/o2.max(),o3/o3.max(),o4/o4.max(),m,s,c,co) 
+                    compose = th.cat(tup,0)
+                    vutils.save_image(compose, fp = os.path.join(args.out_dir, str(slice_ID)+'_output'+str(i)+".jpg"), nrow = 1, padding = 10)
         ensres = staple(th.stack(enslist,dim=0)).squeeze(0)
         vutils.save_image(ensres, fp = os.path.join(args.out_dir, str(slice_ID)+'_output_ens'+".jpg"), nrow = 1, padding = 10)
+        mean_val_loss =(sum(val_losses)/len(val_losses))
+        print("mean_val_loss",mean_val_loss)
 
 def create_argparser():
     defaults = dict(
