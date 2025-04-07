@@ -136,7 +136,7 @@ def main():
             co = th.tensor(cal_out)
             if args.version == 'new':
                 enslist.append(sample[:,-1,:,:])
-                enslist.append(co)
+                # enslist.append(co)
             else:
                 enslist.append(co)
 
