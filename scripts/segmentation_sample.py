@@ -114,7 +114,7 @@ def main():
         start = th.cuda.Event(enable_timing=True)
         end = th.cuda.Event(enable_timing=True)
         enslist = []
-
+        enslist2 = []
         for i in range(args.num_ensemble):  #this is for the generation of an ensemble of 5 masks.
             model_kwargs = {}
             start.record()
@@ -136,7 +136,7 @@ def main():
             co = th.tensor(cal_out)
             if args.version == 'new':
                 enslist.append(sample[:,-1,:,:])
-                # enslist.append(co)
+                enslist2.append(cal)
             else:
                 enslist.append(co)
 
@@ -183,7 +183,9 @@ def main():
                     compose = th.cat(tup,0)
                     vutils.save_image(compose, fp = os.path.join(args.out_dir, str(slice_ID)+'_output'+str(i)+".jpg"), nrow = 1, padding = 10)
         ensres = staple(th.stack(enslist,dim=0)).squeeze(0)
+        ensres2 = staple(th.stack(enslist2,dim=0)).squeeze(0)
         vutils.save_image(ensres, fp = os.path.join(args.out_dir, str(slice_ID)+'_output_ens'+".jpg"), nrow = 1, padding = 10)
+        vutils.save_image(ensres, fp = os.path.join(args.out_dir, str(slice_ID)+'_output_ens2'+".jpg"), nrow = 1, padding = 10)
         mean_val_loss =(sum(val_losses)/len(val_losses))
         print("mean_val_loss",mean_val_loss)
 
